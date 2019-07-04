@@ -3,6 +3,10 @@ import logo from './logo.svg';
 import './App.css';
 
 function App() {
+  if (!('webkitSpeechRecognition' in window)) {
+    return <div className="App">Sorry, this app is not supported in this browser.</div>
+  }
+
   return (
     <div className="App">
       <header className="App-header">
