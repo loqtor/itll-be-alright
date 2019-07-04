@@ -59,16 +59,23 @@ export const Recorder = class Recorder extends Component<IRecorderProps, IRecord
             this.audioFragments.push(e.data);
           }
 
-          mediaRecorder.onpause = () => {
+          mediaRecorder.onstop = () => {
+            const { audioFragments } = this;
+
             /*
              * This prevents the 416 error from happening.
              * This forces the media recorder to create a new Blob when the recording is stopped.
              */
-            mediaRecorder.requestData();
-          }
+            const audioBlob = new Blob(audioFragments, { 'type' : 'audio/ogg; codecs=opus' });
+            const audioUrl = URL.createObjectURL(audioBlob);
 
-          mediaRecorder.onresume = () => {
             this.audioFragments = [];
+
+            this.setState({
+              isRecording: false,
+              audioAvailable: true,
+              audioUrl,
+            });
           }
 
           this.setState({
@@ -80,7 +87,7 @@ export const Recorder = class Recorder extends Component<IRecorderProps, IRecord
         });
     }
 
-    recorder.resume();
+    recorder.start();
 
     this.setState({
       isRecording: true,
@@ -88,21 +95,9 @@ export const Recorder = class Recorder extends Component<IRecorderProps, IRecord
   }
 
   save = () => {
-    const { audioFragments } = this;
     const { recorder } = this.state;
 
-    recorder.pause();
-
-    console.log('After pause: ', audioFragments);
-
-    const audioBlob = new Blob(audioFragments, { 'type' : 'audio/ogg; codecs=opus' });
-    const audioUrl = URL.createObjectURL(audioBlob);
-
-    this.setState({
-      isRecording: false,
-      audioAvailable: true,
-      audioUrl,
-    });
+    recorder.stop();
   }
 
   render() {
