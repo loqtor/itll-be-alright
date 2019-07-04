@@ -11,16 +11,26 @@ export const Recorder = class Recorder extends Component<{}, IRecorderState> {
     hasRecorded: false,
   }
 
-  play = () => {
-    console.log('play to be implemented');
-  }
-
   toggleRecord = () => {
     const { isRecording } = this.state;
+
+    if (!isRecording) {
+      this.record();
+    } else {
+      this.save();
+    }
 
     this.setState({
       isRecording: !isRecording,
     });
+  }
+
+  record = () => {
+    console.log('Starting the recording.');
+  }
+
+  save = () => {
+    console.log('Saving the recording.');
   }
 
   render() {
