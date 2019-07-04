@@ -5,7 +5,6 @@ interface IRecorderProps {}
 interface IRecorderState {
   isRecording: boolean;
   audioAvailable: boolean;
-  speechRecognition: any; // TODO: Get types for this.
   recorder: any; // TODO: Get types for this.
   audioUrl: string;
 }
@@ -19,13 +18,9 @@ export const Recorder = class Recorder extends Component<IRecorderProps, IRecord
   constructor(props: IRecorderProps) {
     super(props);
 
-    // @ts-ignore -- For now...
-    const speechRecognitionConstructor = window.webkitSpeechRecognition || window.SpeechRecognition;
-
     this.state = {
       isRecording: false,
       audioAvailable: false,
-      speechRecognition: new speechRecognitionConstructor(),
       recorder: null,
       audioUrl: '',
     };
@@ -55,17 +50,11 @@ export const Recorder = class Recorder extends Component<IRecorderProps, IRecord
           const mediaRecorder = new MediaRecorder(stream);
 
           mediaRecorder.ondataavailable = (e: any) => {
-            console.log('At ondatavailable callback, e.data: ', e.data);
             this.audioFragments.push(e.data);
           }
 
           mediaRecorder.onstop = () => {
             const { audioFragments } = this;
-
-            /*
-             * This prevents the 416 error from happening.
-             * This forces the media recorder to create a new Blob when the recording is stopped.
-             */
             const audioBlob = new Blob(audioFragments, { 'type' : 'audio/ogg; codecs=opus' });
             const audioUrl = URL.createObjectURL(audioBlob);
 
