@@ -1,14 +1,25 @@
 import React, { Component, Fragment } from 'react';
 
+interface IRecorderProps {}
+
 interface IRecorderState {
   isRecording: boolean;
   hasRecorded: boolean;
+  speechRecognition: any; // TODO: Get types for this.
 }
 
-export const Recorder = class Recorder extends Component<{}, IRecorderState> {
-  state: IRecorderState = {
-    isRecording: false,
-    hasRecorded: false,
+export const Recorder = class Recorder extends Component<IRecorderProps, IRecorderState> {
+  constructor(props: IRecorderProps) {
+    super(props);
+
+    // @ts-ignore -- For now...
+    const speechRecognitionConstructor = window.webkitSpeechRecognition || window.SpeechRecognition,
+
+    this.state = {
+      isRecording: false,
+      hasRecorded: false,
+      speechRecognition: speechRecognitionConstructor();
+    }
   }
 
   toggleRecord = () => {
@@ -31,6 +42,10 @@ export const Recorder = class Recorder extends Component<{}, IRecorderState> {
 
   save = () => {
     console.log('Saving the recording.');
+  }
+
+  play = () => {
+    console.log('Playing what was recorded.');
   }
 
   render() {
