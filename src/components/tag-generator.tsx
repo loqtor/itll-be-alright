@@ -1,6 +1,5 @@
 import React, { Component, Fragment } from 'react';
 import { grammar as DEFAULT_GRAMMAR } from '../constants/grammar';
-import { start } from 'repl';
 
 enum TagGeneratorStatus {
   INACTIVE = 0,
@@ -30,14 +29,15 @@ export const TagGenerator = class TagGenerator extends Component<ITagGeneratorPr
     // @ts-ignore -- For now...
     const speechGrammarListConstructor = window.SpeechGrammarList || window.webkitSpeechGrammarList;
 
-    const speechRecognitionList = new speechGrammarListConstructor();
+    const speechGrammarList = new speechGrammarListConstructor();
     const speechRecognizer = new speechRecognitionConstructor();
 
-    speechRecognitionList.addFromString(speechGrammar || DEFAULT_GRAMMAR, 1);
-    speechRecognizer.grammars = speechRecognitionList;
+    speechGrammarList.addFromString(speechGrammar || DEFAULT_GRAMMAR, 1);
+    speechRecognizer.grammars = speechGrammarList;
     speechRecognizer.continuous = true;
     speechRecognizer.interimResults = true;
     speechRecognizer.maxAlternatives = 1;
+    speechRecognizer.lang = 'en-NZ';
 
     speechRecognizer.onresult = (e: any) => { this.updateTags(e) };
     
