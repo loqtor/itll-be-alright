@@ -1,13 +1,13 @@
 import React, { Component, Fragment } from 'react';
 import { grammar as DEFAULT_GRAMMAR } from '../constants/grammar';
 
-enum TagGeneratorStatus {
+enum RecognizerStatus {
   INACTIVE = 0,
   RECOGNIZING = 1,
   STOPPED = 2,
 }
 
-interface ITagGeneratorProps {
+interface IRecognizerProps {
   startSpeechRecognition?: boolean;
   grammars?: string;
   continuous: boolean;
@@ -15,17 +15,17 @@ interface ITagGeneratorProps {
   maxAlternatives: number;
   lang: string;
 
-  renderInactiveStatus?: (props: ITagGeneratorProps, state: ITagGeneratorState) => {};
-  renderRecognizingStatus?: (props: ITagGeneratorProps, state: ITagGeneratorState) => {};
-  renderStoppedStatus?: (props: ITagGeneratorProps, state: ITagGeneratorState) => {};
+  renderInactiveStatus?: (props: IRecognizerProps, state: IRecognizerState) => {};
+  renderRecognizingStatus?: (props: IRecognizerProps, state: IRecognizerState) => {};
+  renderStoppedStatus?: (props: IRecognizerProps, state: IRecognizerState) => {};
 
   formatResults?: (results: SpeechRecognitionResultList) => {};
   onResult?: (results: SpeechRecognitionResultList, formattedResults: any) => {};
 }
 
-interface ITagGeneratorState {
+interface IRecognizerState {
   speechRecognizer: SpeechRecognition;
-  status: TagGeneratorStatus;
+  status: RecognizerStatus;
   results: SpeechRecognitionResultList | null;
   formattedResults: any;
 }
@@ -37,8 +37,8 @@ const DEFAULT_CONFIG = {
   lang: 'en-NZ',
 };
 
-export const TagGenerator = class TagGenerator extends Component<ITagGeneratorProps, ITagGeneratorState> {
-  constructor(props: ITagGeneratorProps) {
+export const Recognizer = class Recognizer extends Component<IRecognizerProps, IRecognizerState> {
+  constructor(props: IRecognizerProps) {
     super(props);
 
     const {
@@ -70,7 +70,7 @@ export const TagGenerator = class TagGenerator extends Component<ITagGeneratorPr
     
     this.state = {
       speechRecognizer,
-      status: startSpeechRecognition ? TagGeneratorStatus.RECOGNIZING : TagGeneratorStatus.INACTIVE,
+      status: startSpeechRecognition ? RecognizerStatus.RECOGNIZING : RecognizerStatus.INACTIVE,
       results: null,
       formattedResults: null,
     }
@@ -146,21 +146,21 @@ export const TagGenerator = class TagGenerator extends Component<ITagGeneratorPr
     const { startSpeechRecognition } = this.props;
     const { speechRecognizer, status } = this.state;
 
-    if (startSpeechRecognition && status !== TagGeneratorStatus.RECOGNIZING) {
+    if (startSpeechRecognition && status !== RecognizerStatus.RECOGNIZING) {
       speechRecognizer.start();
 
       this.setState({
-        status: TagGeneratorStatus.RECOGNIZING,
+        status: RecognizerStatus.RECOGNIZING,
       });
 
       return;
     }
 
-    if (!startSpeechRecognition && status === TagGeneratorStatus.RECOGNIZING) {
+    if (!startSpeechRecognition && status === RecognizerStatus.RECOGNIZING) {
       speechRecognizer.stop();
 
       this.setState({
-        status: TagGeneratorStatus.STOPPED,
+        status: RecognizerStatus.STOPPED,
       });
     }
   }
@@ -168,11 +168,11 @@ export const TagGenerator = class TagGenerator extends Component<ITagGeneratorPr
   render() {
     const { status } = this.state;
 
-    if (status === TagGeneratorStatus.INACTIVE) {
+    if (status === RecognizerStatus.INACTIVE) {
       return this.renderInactiveStatus();
     }
 
-    if (status === TagGeneratorStatus.RECOGNIZING) {
+    if (status === RecognizerStatus.RECOGNIZING) {
       return this.renderRecognizingStatus();
     }
 

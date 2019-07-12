@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { TagGenerator } from './components/tag-generator';
+import { TagGenerator } from './components/recognizer';
 
 const App = class App extends Component {
   state = {
