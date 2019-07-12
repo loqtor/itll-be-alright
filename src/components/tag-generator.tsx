@@ -19,14 +19,15 @@ interface ITagGeneratorProps {
   renderRecognizingStatus?: (props: ITagGeneratorProps, state: ITagGeneratorState) => {};
   renderStoppedStatus?: (props: ITagGeneratorProps, state: ITagGeneratorState) => {};
 
-  formatResults: (results: SpeechRecognitionResultList) => {};
-  onResult: (results: SpeechRecognitionResultList, formattedResults: any) => {};
+  formatResults?: (results: SpeechRecognitionResultList) => {};
+  onResult?: (results: SpeechRecognitionResultList, formattedResults: any) => {};
 }
 
 interface ITagGeneratorState {
-  speechRecognizer: any; // TODO: Get types for this.
-  tags: string[];
+  speechRecognizer: SpeechRecognition;
   status: TagGeneratorStatus;
+  results: SpeechRecognitionResultList | null;
+  formattedResults: any;
 }
 
 const DEFAULT_CONFIG = {
@@ -40,7 +41,8 @@ export const TagGenerator = class TagGenerator extends Component<ITagGeneratorPr
   constructor(props: ITagGeneratorProps) {
     super(props);
 
-    const { 
+    const {
+      startSpeechRecognition,
       grammars,
       continuous,
       interimResults,
@@ -68,8 +70,9 @@ export const TagGenerator = class TagGenerator extends Component<ITagGeneratorPr
     
     this.state = {
       speechRecognizer,
-      tags: [],
-      status: TagGeneratorStatus.INACTIVE,
+      status: startSpeechRecognition ? TagGeneratorStatus.RECOGNIZING : TagGeneratorStatus.INACTIVE,
+      results: null,
+      formattedResults: null,
     }
   }
 
@@ -78,7 +81,16 @@ export const TagGenerator = class TagGenerator extends Component<ITagGeneratorPr
     const { formatResults, onResult } = this.props;
     const formattedResults = formatResults ? formatResults(results) : results;
 
-    onResult(results, formattedResults);
+    this.setState({
+      results,
+      formattedResults,
+    }, () => {
+      if (!onResult) {
+        return;
+      }
+
+      onResult(results, formattedResults);
+    });
   }
 
   renderInactiveStatus = () => {
@@ -116,16 +128,16 @@ export const TagGenerator = class TagGenerator extends Component<ITagGeneratorPr
       return renderStoppedStatus(this.props, this.state);
     }
 
-    const { tags } = this.state;
+    const { results } = this.state;
 
-    if (tags.length === 0) {
-      return (<h2>No tags found in speech.</h2>);
+    if (!results || !results.length) {
+      return (<h2>No results found in speech.</h2>);
     }
 
     return (
       <Fragment>
-        <h2>Tags found in speech</h2>
-        <p>{tags.map((tag: string, i: number) => `${i > 0 ? ',' : ''}${tag}`)}</p>
+        <h2>results found in speech</h2>
+        <p>{JSON.stringify(results)}</p>
       </Fragment>
     )
   }
