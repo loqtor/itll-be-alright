@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { TagGenerator } from './components/recognizer';
+import { Recognizer } from './components/recognizer';
 
 const App = class App extends Component {
   state = {
@@ -26,7 +26,7 @@ const App = class App extends Component {
     return (
       <div className="App">
         <h1>Recorder Test</h1>
-        <TagGenerator
+        <Recognizer
           showResults={tags.length > 0}
           startSpeechRecognition={recognizing}
         />
