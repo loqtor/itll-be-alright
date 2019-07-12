@@ -29,6 +29,7 @@ interface IRecognizerState {
   status: RecognizerStatus;
   results: SpeechRecognitionResultList | null;
   formattedResults: any;
+  transcripts: string[];
 }
 
 const DEFAULT_CONFIG = {
@@ -74,6 +75,7 @@ export const Recognizer = class Recognizer extends Component<IRecognizerProps, I
       status: startSpeechRecognition ? RecognizerStatus.RECOGNIZING : RecognizerStatus.INACTIVE,
       results: null,
       formattedResults: null,
+      transcripts: [],
     }
   }
 
@@ -81,16 +83,16 @@ export const Recognizer = class Recognizer extends Component<IRecognizerProps, I
     const { results } = e;
     const { formatResults, onResult } = this.props;
     const formattedResults = formatResults ? formatResults(results) : results;
+    const transcripts = extractTranscripts(results);
 
     this.setState({
       results,
       formattedResults,
+      transcripts,
     }, () => {
       if (!onResult) {
         return;
       }
-
-      const transcripts = extractTranscripts(results);
 
       onResult(results, formattedResults, transcripts);
     });
@@ -131,16 +133,22 @@ export const Recognizer = class Recognizer extends Component<IRecognizerProps, I
       return renderStoppedStatus(this.props, this.state);
     }
 
-    const { results } = this.state;
+    const { transcripts } = this.state;
 
-    if (!results || !results.length) {
-      return (<h2>No results found in speech.</h2>);
+    if (!transcripts.length) {
+      return (<h2>No transcripts found in speech.</h2>);
     }
 
     return (
       <Fragment>
-        <h2>results found in speech</h2>
-        <p>{JSON.stringify(results)}</p>
+        <h2>Transcripts from speech:</h2>
+        <ul>
+          {transcripts.map((transcript: string, i: number) => {
+            return (
+              <li key={`transcript-${i}`}>{transcript}</li>
+            )
+          })}
+        </ul>
       </Fragment>
     )
   }
