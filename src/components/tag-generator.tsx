@@ -9,7 +9,18 @@ enum TagGeneratorStatus {
 
 interface ITagGeneratorProps {
   startSpeechRecognition?: boolean;
-  speechGrammar?: string; // @TODO: Check if there's a way to validate grammars.
+  grammars?: string;
+  continuous: boolean;
+  interimResults: boolean;
+  maxAlternatives: number;
+  lang: string;
+
+  renderInactiveStatus?: (props: ITagGeneratorProps, state: ITagGeneratorState) => {};
+  renderRecognizingStatus?: (props: ITagGeneratorProps, state: ITagGeneratorState) => {};
+  renderStoppedStatus?: (props: ITagGeneratorProps, state: ITagGeneratorState) => {};
+
+  formatResults: (results: SpeechRecognitionResultList) => {};
+  onResult: (results: SpeechRecognitionResultList, formattedResults: any) => {};
 }
 
 interface ITagGeneratorState {
@@ -18,11 +29,24 @@ interface ITagGeneratorState {
   status: TagGeneratorStatus;
 }
 
+const DEFAULT_CONFIG = {
+  continuous: true,
+  interimResults: true,
+  maxAlternatives: 1,
+  lang: 'en-NZ',
+};
+
 export const TagGenerator = class TagGenerator extends Component<ITagGeneratorProps, ITagGeneratorState> {
   constructor(props: ITagGeneratorProps) {
     super(props);
 
-    const { speechGrammar } = props;
+    const { 
+      grammars,
+      continuous,
+      interimResults,
+      maxAlternatives,
+      lang,
+    } = props;
 
     // @ts-ignore -- For now...
     const speechRecognitionConstructor = window.webkitSpeechRecognition || window.SpeechRecognition;
@@ -32,14 +56,15 @@ export const TagGenerator = class TagGenerator extends Component<ITagGeneratorPr
     const speechGrammarList = new speechGrammarListConstructor();
     const speechRecognizer = new speechRecognitionConstructor();
 
-    speechGrammarList.addFromString(speechGrammar || DEFAULT_GRAMMAR, 1);
-    speechRecognizer.grammars = speechGrammarList;
-    speechRecognizer.continuous = true;
-    speechRecognizer.interimResults = true;
-    speechRecognizer.maxAlternatives = 1;
-    speechRecognizer.lang = 'en-NZ';
+    speechGrammarList.addFromString(grammars || DEFAULT_GRAMMAR, 10000000);
 
-    speechRecognizer.onresult = (e: any) => { this.updateTags(e) };
+    speechRecognizer.grammars = speechGrammarList;
+    speechRecognizer.continuous = continuous || DEFAULT_CONFIG.continuous;
+    speechRecognizer.interimResults = interimResults || DEFAULT_CONFIG.interimResults;
+    speechRecognizer.maxAlternatives = maxAlternatives || DEFAULT_CONFIG.maxAlternatives;
+    speechRecognizer.lang = lang || DEFAULT_CONFIG;
+
+    speechRecognizer.onresult = (e: SpeechRecognitionEvent) => { this.update(e) };
     
     this.state = {
       speechRecognizer,
@@ -48,11 +73,21 @@ export const TagGenerator = class TagGenerator extends Component<ITagGeneratorPr
     }
   }
 
-  updateTags = (e: any) => {
-    console.log('Found a result: ', e);
+  update = (e: SpeechRecognitionEvent) => {
+    const { results } = e;
+    const { formatResults, onResult } = this.props;
+    const formattedResults = formatResults ? formatResults(results) : results;
+
+    onResult(results, formattedResults);
   }
 
   renderInactiveStatus = () => {
+    const { renderInactiveStatus } = this.props;
+
+    if (renderInactiveStatus) {
+      return renderInactiveStatus(this.props, this.state);
+    }
+
     return (
       <Fragment>
         <h2>Awaiting to be enabled...</h2>
@@ -61,6 +96,12 @@ export const TagGenerator = class TagGenerator extends Component<ITagGeneratorPr
   }
 
   renderRecognizingStatus = () => {
+    const { renderRecognizingStatus } = this.props;
+
+    if (renderRecognizingStatus) {
+      return renderRecognizingStatus(this.props, this.state);
+    }
+
     return (
       <Fragment>
         <h2>Recording tags...</h2>
@@ -69,6 +110,12 @@ export const TagGenerator = class TagGenerator extends Component<ITagGeneratorPr
   }
 
   renderStoppedStatus = () => {
+    const { renderStoppedStatus } = this.props;
+
+    if (renderStoppedStatus) {
+      return renderStoppedStatus(this.props, this.state);
+    }
+
     const { tags } = this.state;
 
     if (tags.length === 0) {
