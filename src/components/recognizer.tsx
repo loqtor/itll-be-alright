@@ -1,5 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import { grammar as DEFAULT_GRAMMAR } from '../constants/grammar';
+import { extractTranscripts } from '../util/recognizer';
 
 enum RecognizerStatus {
   INACTIVE = 0,
@@ -20,7 +21,7 @@ interface IRecognizerProps {
   renderStoppedStatus?: (props: IRecognizerProps, state: IRecognizerState) => {};
 
   formatResults?: (results: SpeechRecognitionResultList) => {};
-  onResult?: (results: SpeechRecognitionResultList, formattedResults: any) => {};
+  onResult?: (results: SpeechRecognitionResultList, formattedResults: any, transcripts: string[]) => {};
 }
 
 interface IRecognizerState {
@@ -89,7 +90,9 @@ export const Recognizer = class Recognizer extends Component<IRecognizerProps, I
         return;
       }
 
-      onResult(results, formattedResults);
+      const transcripts = extractTranscripts(results);
+
+      onResult(results, formattedResults, transcripts);
     });
   }
 
