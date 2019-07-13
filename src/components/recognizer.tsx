@@ -119,7 +119,7 @@ export const Recognizer = class Recognizer extends Component<IRecognizerProps, I
     }
 
     return (
-      <h2>Recording tags...</h2>
+      <h2>Recognizing speech...</h2>
     )
   }
 
