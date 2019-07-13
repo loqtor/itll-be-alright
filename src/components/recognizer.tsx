@@ -106,9 +106,7 @@ export const Recognizer = class Recognizer extends Component<IRecognizerProps, I
     }
 
     return (
-      <Fragment>
-        <h2>Awaiting to be enabled...</h2>
-      </Fragment>
+      <h2>Awaiting to be enabled...</h2>
     )
   }
 
@@ -120,9 +118,7 @@ export const Recognizer = class Recognizer extends Component<IRecognizerProps, I
     }
 
     return (
-      <Fragment>
-        <h2>Recording tags...</h2>
-      </Fragment>
+      <h2>Recording tags...</h2>
     )
   }
 
