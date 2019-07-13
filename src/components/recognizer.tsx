@@ -10,10 +10,10 @@ enum RecognizerStatus {
 interface IRecognizerProps {
   startSpeechRecognition?: boolean;
   grammars?: string;
-  continuous: boolean;
-  interimResults: boolean;
-  maxAlternatives: number;
-  lang: string;
+  continuous?: boolean;
+  interimResults?: boolean;
+  maxAlternatives?: number;
+  lang?: string;
 
   renderInactiveStatus?: (props: IRecognizerProps, state: IRecognizerState) => {};
   renderRecognizingStatus?: (props: IRecognizerProps, state: IRecognizerState) => {};
