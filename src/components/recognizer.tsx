@@ -8,6 +8,16 @@ enum RecognizerStatus {
   STOPPED = 2,
 }
 
+enum RecognizerMatchMode {
+  EXACT = 1,
+  FUZZY = 2,
+}
+
+enum RecognizerUpdateMode {
+  IMMEDIATE = 1,
+  ON_DONE = 2,
+}
+
 interface IRecognizerProps {
   startSpeechRecognition?: boolean;
   grammars?: string;
