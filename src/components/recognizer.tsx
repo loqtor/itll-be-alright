@@ -1,5 +1,4 @@
 import React, { Component, Fragment } from 'react';
-import { grammar as DEFAULT_GRAMMAR } from '../constants/grammar';
 import { extractTranscripts } from '../util/recognizer';
 
 enum RecognizerStatus {
@@ -60,7 +59,9 @@ export const Recognizer = class Recognizer extends Component<IRecognizerProps, I
     const speechGrammarList = new speechGrammarListConstructor();
     const speechRecognizer = new speechRecognitionConstructor();
 
-    speechGrammarList.addFromString(grammars || DEFAULT_GRAMMAR, 10000000);
+    if (grammars) {
+      speechGrammarList.addFromString(grammars, 10000000);
+    }
 
     speechRecognizer.grammars = speechGrammarList;
     speechRecognizer.continuous = continuous || DEFAULT_CONFIG.continuous;
