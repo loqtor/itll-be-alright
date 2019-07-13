@@ -31,7 +31,7 @@ interface IRecognizerState {
   transcripts: string[];
 }
 
-const DEFAULT_CONFIG = {
+export const RECOGNIZER_DEFAULT_CONFIG = {
   continuous: true,
   interimResults: true,
   maxAlternatives: 1,
@@ -56,18 +56,18 @@ export const Recognizer = class Recognizer extends Component<IRecognizerProps, I
     // @ts-ignore -- For now...
     const speechGrammarListConstructor = window.SpeechGrammarList || window.webkitSpeechGrammarList;
 
-    const speechGrammarList = new speechGrammarListConstructor();
     const speechRecognizer = new speechRecognitionConstructor();
-
+    
     if (grammars) {
+      const speechGrammarList = new speechGrammarListConstructor();
       speechGrammarList.addFromString(grammars, 10000000);
+      speechRecognizer.grammars = speechGrammarList;
     }
 
-    speechRecognizer.grammars = speechGrammarList;
-    speechRecognizer.continuous = continuous || DEFAULT_CONFIG.continuous;
-    speechRecognizer.interimResults = interimResults || DEFAULT_CONFIG.interimResults;
-    speechRecognizer.maxAlternatives = maxAlternatives || DEFAULT_CONFIG.maxAlternatives;
-    speechRecognizer.lang = lang || DEFAULT_CONFIG;
+    speechRecognizer.continuous = continuous || RECOGNIZER_DEFAULT_CONFIG.continuous;
+    speechRecognizer.interimResults = interimResults || RECOGNIZER_DEFAULT_CONFIG.interimResults;
+    speechRecognizer.maxAlternatives = maxAlternatives || RECOGNIZER_DEFAULT_CONFIG.maxAlternatives;
+    speechRecognizer.lang = lang || RECOGNIZER_DEFAULT_CONFIG;
 
     speechRecognizer.onresult = (e: SpeechRecognitionEvent) => { this.update(e) };
     
