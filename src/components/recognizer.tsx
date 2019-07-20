@@ -6,6 +6,7 @@ enum RecognizerStatus {
   INACTIVE = 0,
   RECOGNIZING = 1,
   STOPPED = 2,
+  FAILED = 3,
 }
 
 interface IRecognizerProps {
@@ -23,8 +24,10 @@ interface IRecognizerProps {
   renderStoppedStatus?: (props: IRecognizerProps, state: IRecognizerState) => {};
 
   formatResults?: (results: SpeechRecognitionResultList) => {};
+  
+  onStart?: (event: SpeechRecognitionEvent, props: IRecognizerProps, state: IRecognizerState) => {}
   onResult?: (results: SpeechRecognitionResultList, formattedResults: any, transcripts: string[]) => {};
-  onError?: (error: any) => {};
+  onError?: (error: SpeechRecognitionError) => {};
 }
 
 interface IRecognizerState {
@@ -72,8 +75,9 @@ export const Recognizer = class Recognizer extends Component<IRecognizerProps, I
     speechRecognizer.maxAlternatives = maxAlternatives || DEFAULT_CONFIG.maxAlternatives;
     speechRecognizer.lang = lang || DEFAULT_CONFIG;
 
-    speechRecognizer.onresult = (e: SpeechRecognitionEvent) => { this.onResult(e) };
-    speechRecognizer.onerror = (e: SpeechRecognitionError) => { this.onError(e) };
+    speechRecognizer.onstart = (e: SpeechRecognitionEvent) => this.onStart(e);
+    speechRecognizer.onresult = (e: SpeechRecognitionEvent) => this.onResult(e);
+    speechRecognizer.onerror = (e: SpeechRecognitionError) => this.onError(e);
     
     this.state = {
       speechRecognizer,
@@ -82,6 +86,18 @@ export const Recognizer = class Recognizer extends Component<IRecognizerProps, I
       formattedResults: null,
       transcripts: [],
     }
+  }
+
+  onStart = (event: SpeechRecognitionEvent) => {
+    this.setState({
+      status: RecognizerStatus.RECOGNIZING,
+    }, () => {
+      const { onStart } = this.props;
+
+      if (onStart) {
+        onStart(event, this.props, this.state);
+      }
+    });
   }
 
   onResult = (event: SpeechRecognitionEvent) => {
@@ -103,14 +119,15 @@ export const Recognizer = class Recognizer extends Component<IRecognizerProps, I
     });
   }
 
-  onError = (event: SpeechRecognitionError) => {
+  onError = (error: SpeechRecognitionError) => {
     this.setState({
-      error: event,
+      error,
+      status: RecognizerStatus.FAILED,
     }, () => {
       const { onError } = this.props;
 
       if (onError) {
-        onError(event);
+        onError(error);
       }
     });
   }
@@ -163,15 +180,17 @@ export const Recognizer = class Recognizer extends Component<IRecognizerProps, I
   }
 
   componentDidUpdate() {
+    const { status } = this.state;
+
+    if (status === RecognizerStatus.FAILED) {
+      return;
+    }
+
     const { startSpeechRecognition } = this.props;
-    const { speechRecognizer, status } = this.state;
+    const { speechRecognizer } = this.state;
 
     if (startSpeechRecognition && status !== RecognizerStatus.RECOGNIZING) {
       speechRecognizer.start();
-
-      this.setState({
-        status: RecognizerStatus.RECOGNIZING,
-      });
 
       return;
     }
@@ -187,14 +206,16 @@ export const Recognizer = class Recognizer extends Component<IRecognizerProps, I
 
   render() {
     const { dontRender } = this.props;
-    const { error } = this.state;
+    const { error, status } = this.state;
 
-    if (dontRender || error) {
-      console.error('There has been an error trying to start recognizing: ', error);
+    if (dontRender) {
       return null;
     }
 
-    const { status } = this.state;
+    if (status === RecognizerStatus.FAILED) {
+      console.error('There has been an error trying to start recognizing: ', error);
+      return null;
+    }
 
     if (status === RecognizerStatus.INACTIVE) {
       return this.renderInactiveStatus();
