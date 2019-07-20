@@ -14,6 +14,8 @@
     "react-scripts": "3.0.1",
     "redux": "^4.0.1",
     "redux-saga": "^1.0.5",
+    "tslint": "^5.18.0",
+    "tslint-react": "^4.0.0",
     "typescript": "^3.5.2"
   },
   "scripts": {
@@ -21,9 +23,6 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
-  },
-  "eslintConfig": {
-    "extends": "react-app"
   },
   "browserslist": {
     "production": [
