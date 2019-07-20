@@ -107,11 +107,7 @@ export const Recognizer = class Recognizer extends Component<IRecognizerProps, I
       return renderInactiveStatus(this.props, this.state);
     }
 
-    return (
-      <Fragment>
-        <h2>Awaiting to be enabled...</h2>
-      </Fragment>
-    )
+    return <h2>Ready to start...</h2>;
   }
 
   renderRecognizingStatus = () => {
@@ -121,11 +117,7 @@ export const Recognizer = class Recognizer extends Component<IRecognizerProps, I
       return renderRecognizingStatus(this.props, this.state);
     }
 
-    return (
-      <Fragment>
-        <h2>Recording tags...</h2>
-      </Fragment>
-    )
+    return <h2>Recording tags...</h2>;
   }
 
   renderStoppedStatus = () => {
@@ -138,7 +130,7 @@ export const Recognizer = class Recognizer extends Component<IRecognizerProps, I
     const { transcripts } = this.state;
 
     if (!transcripts.length) {
-      return (<h2>No transcripts found in speech.</h2>);
+      return <h2>No transcripts found in speech.</h2>;
     }
 
     return (
