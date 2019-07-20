@@ -24,6 +24,7 @@ interface IRecognizerProps {
 
   formatResults?: (results: SpeechRecognitionResultList) => {};
   onResult?: (results: SpeechRecognitionResultList, formattedResults: any, transcripts: string[]) => {};
+  onError?: (error: any) => {};
 }
 
 interface IRecognizerState {
@@ -32,6 +33,7 @@ interface IRecognizerState {
   results: SpeechRecognitionResultList | null;
   formattedResults: any;
   transcripts: string[];
+  error?: SpeechRecognitionError;
 }
 
 const DEFAULT_CONFIG = {
@@ -70,7 +72,8 @@ export const Recognizer = class Recognizer extends Component<IRecognizerProps, I
     speechRecognizer.maxAlternatives = maxAlternatives || DEFAULT_CONFIG.maxAlternatives;
     speechRecognizer.lang = lang || DEFAULT_CONFIG;
 
-    speechRecognizer.onresult = (e: SpeechRecognitionEvent) => { this.update(e) };
+    speechRecognizer.onresult = (e: SpeechRecognitionEvent) => { this.onResult(e) };
+    speechRecognizer.onerror = (e: SpeechRecognitionError) => { this.onError(e) };
     
     this.state = {
       speechRecognizer,
@@ -81,8 +84,8 @@ export const Recognizer = class Recognizer extends Component<IRecognizerProps, I
     }
   }
 
-  update = (e: SpeechRecognitionEvent) => {
-    const { results } = e;
+  onResult = (event: SpeechRecognitionEvent) => {
+    const { results } = event;
     const { formatResults, onResult } = this.props;
     const formattedResults = formatResults ? formatResults(results) : results;
     const transcripts = extractTranscripts(results);
@@ -97,6 +100,18 @@ export const Recognizer = class Recognizer extends Component<IRecognizerProps, I
       }
 
       onResult(results, formattedResults, transcripts);
+    });
+  }
+
+  onError = (event: SpeechRecognitionError) => {
+    this.setState({
+      error: event,
+    }, () => {
+      const { onError } = this.props;
+
+      if (onError) {
+        onError(event);
+      }
     });
   }
 
@@ -172,8 +187,10 @@ export const Recognizer = class Recognizer extends Component<IRecognizerProps, I
 
   render() {
     const { dontRender } = this.props;
+    const { error } = this.state;
 
-    if (dontRender) {
+    if (dontRender || error) {
+      console.error('There has been an error trying to start recognizing: ', error);
       return null;
     }
 
