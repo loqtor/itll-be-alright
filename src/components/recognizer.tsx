@@ -10,6 +10,8 @@ enum RecognizerStatus {
 
 interface IRecognizerProps {
   startSpeechRecognition?: boolean;
+  dontRender?: boolean;
+
   grammars?: string;
   continuous: boolean;
   interimResults: boolean;
@@ -177,6 +179,12 @@ export const Recognizer = class Recognizer extends Component<IRecognizerProps, I
   }
 
   render() {
+    const { dontRender } = this.props;
+
+    if (dontRender) {
+      return null;
+    }
+
     const { status } = this.state;
 
     if (status === RecognizerStatus.INACTIVE) {
