@@ -1,5 +1,7 @@
 import React, { Component, Fragment } from 'react';
+
 import { extractTranscripts } from '../util/recognizer';
+import SpeechRecognitionMock from '../util/test';
 
 enum RecognizerStatus {
   INACTIVE = 0,
@@ -51,14 +53,18 @@ export const Recognizer = class Recognizer extends Component<IRecognizerProps, I
       lang,
     } = props;
 
-    // @ts-ignore -- For now...
-    const speechRecognitionConstructor = window.webkitSpeechRecognition || window.SpeechRecognition;
-    // @ts-ignore -- For now...
-    const speechGrammarListConstructor = window.SpeechGrammarList || window.webkitSpeechGrammarList;
+    let speechRecognizer;
 
-    const speechRecognizer = new speechRecognitionConstructor();
+    if (process.env.NODE_ENV !== 'test') {
+      // @ts-ignore -- For now...
+      speechRecognizer = new (window.webkitSpeechRecognition || window.SpeechRecognition)();
+    } else {
+      speechRecognizer = {};
+    }
     
     if (grammars) {
+      // @ts-ignore -- For now...
+      const speechGrammarListConstructor = window.SpeechGrammarList || window.webkitSpeechGrammarList;
       const speechGrammarList = new speechGrammarListConstructor();
       speechGrammarList.addFromString(grammars, 10000000);
       speechRecognizer.grammars = speechGrammarList;
