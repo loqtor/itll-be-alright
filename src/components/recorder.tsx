@@ -1,10 +1,10 @@
 import React, { Component, Fragment } from 'react';
 
 interface IRecorderState {
-  isRecording: boolean;
   audioAvailable: boolean;
-  recorder: any; // TODO: Get types for this.
   audioUrl: string;
+  isRecording: boolean;
+  recorder: any; // TODO: Get types for this.
 }
 
 interface IDataAvailableEvent {
@@ -21,10 +21,10 @@ const DATA_AVAILABLE_INTERVAL = 500;
 
 export const Recorder = class Recorder extends Component<IRecorderProps, IRecorderState> {
   state: IRecorderState = {
-    isRecording: false,
     audioAvailable: false,
-    recorder: null,
     audioUrl: '',
+    isRecording: false,
+    recorder: null,
   };
 
   isSettingMediaRecorder: boolean = false;
