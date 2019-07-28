@@ -5,7 +5,6 @@ interface IRecorderProps {}
 interface IRecorderState {
   isRecording: boolean;
   audioAvailable: boolean;
-  speechRecognition: any; // TODO: Get types for this.
   recorder: any; // TODO: Get types for this.
   audioUrl: string;
 }
@@ -13,23 +12,15 @@ interface IRecorderState {
 const DATA_AVAILABLE_INTERVAL = 500;
 
 export const Recorder = class Recorder extends Component<IRecorderProps, IRecorderState> {
+  state: IRecorderState = {
+    isRecording: false,
+    audioAvailable: false,
+    recorder: null,
+    audioUrl: '',
+  };
+
   isSettingMediaRecorder: boolean = false;
   audioFragments: any[] = [];
-
-  constructor(props: IRecorderProps) {
-    super(props);
-
-    // @ts-ignore -- For now...
-    const speechRecognitionConstructor = window.webkitSpeechRecognition || window.SpeechRecognition;
-
-    this.state = {
-      isRecording: false,
-      audioAvailable: false,
-      speechRecognition: new speechRecognitionConstructor(),
-      recorder: null,
-      audioUrl: '',
-    };
-  }
 
   toggleRecord = () => {
     const { isRecording } = this.state;
