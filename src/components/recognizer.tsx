@@ -1,9 +1,8 @@
 import React, { Component, Fragment } from 'react';
 
 import { extractTranscripts } from '../util/recognizer';
-import SpeechRecognitionMock from '../util/test';
 
-enum RecognizerStatus {
+export enum RecognizerStatus {
   INACTIVE = 0,
   RECOGNIZING = 1,
   STOPPED = 2,
@@ -33,7 +32,7 @@ interface IRecognizerState {
   transcripts: string[];
 }
 
-export const RECOGNIZER_DEFAULT_CONFIG = {
+export const RECOGNIZER_DEFAULT_CONFIG: IRecognizerProps = {
   continuous: true,
   interimResults: true,
   maxAlternatives: 1,
@@ -59,7 +58,10 @@ export const Recognizer = class Recognizer extends Component<IRecognizerProps, I
       // @ts-ignore -- For now...
       speechRecognizer = new (window.webkitSpeechRecognition || window.SpeechRecognition)();
     } else {
-      speechRecognizer = {};
+      speechRecognizer = {
+        start: () => {},
+        stop: () => {},
+      };
     }
     
     if (grammars) {
