@@ -1,12 +1,20 @@
 import React, { Component, Fragment } from 'react';
 
-interface IRecorderProps {}
-
 interface IRecorderState {
   isRecording: boolean;
   audioAvailable: boolean;
   recorder: any; // TODO: Get types for this.
   audioUrl: string;
+}
+
+interface IDataAvailableEvent {
+  data: Blob;
+}
+
+interface IRecorderProps {
+  onStart?: () => {};
+  onDataAvailable?: (e: IDataAvailableEvent) => {};
+  onStop?: (audioUrl: string, state: IRecorderState) => {};
 }
 
 const DATA_AVAILABLE_INTERVAL = 500;
@@ -45,9 +53,14 @@ export const Recorder = class Recorder extends Component<IRecorderProps, IRecord
           // @ts-ignore -- Check what's up with the types
           const mediaRecorder = new MediaRecorder(stream);
 
-          mediaRecorder.ondataavailable = (e: any) => {
-            console.log('At ondatavailable callback, e.data: ', e.data);
+          mediaRecorder.ondataavailable = (e: IDataAvailableEvent) => {
             this.audioFragments.push(e.data);
+
+            const { onDataAvailable } = this.props;
+
+            if (onDataAvailable) {
+              onDataAvailable(e);
+            }
           }
 
           mediaRecorder.onstop = () => {
@@ -66,6 +79,12 @@ export const Recorder = class Recorder extends Component<IRecorderProps, IRecord
               isRecording: false,
               audioAvailable: true,
               audioUrl,
+            }, () => {
+              const { onStop } = this.props;
+
+              if (onStop) {
+                onStop(audioUrl, this.state);
+              }
             });
           }
 
@@ -74,6 +93,12 @@ export const Recorder = class Recorder extends Component<IRecorderProps, IRecord
             isRecording: true,
           }, () => {
             mediaRecorder.start(DATA_AVAILABLE_INTERVAL);
+
+            const { onStart } = this.props;
+
+            if (onStart) {
+              onStart();
+            }
           });
         });
     }
