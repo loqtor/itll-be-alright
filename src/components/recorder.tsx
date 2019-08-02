@@ -1,4 +1,5 @@
 import React, { Component, Fragment } from 'react';
+import { getAudioStream } from '../util/media-devices';
 
 interface IRecorderState {
   audioAvailable: boolean;
@@ -46,9 +47,7 @@ export const Recorder = class Recorder extends Component<IRecorderProps, IRecord
     if (!recorder) {
       this.isSettingMediaRecorder = true;
 
-      return navigator
-        .mediaDevices
-        .getUserMedia({ audio: true })
+      return getAudioStream()
         .then(stream => {
           // @ts-ignore -- Check what's up with the types
           const mediaRecorder = new MediaRecorder(stream);
